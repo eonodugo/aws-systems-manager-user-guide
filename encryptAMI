@@ -1,0 +1,54 @@
+{
+  "description": "Encrypt EBS Volume to put in compliance",
+  "schemaVersion": "0.3",
+  "assumeRole": "{{ AutomationAssumeRole }}",
+  "parameters": {
+    "InstanceId": {
+      "type": "String",
+      "description": "(Required) Select the instance "
+    },
+{      
+"SourceImageId": {
+      "type": "String",
+      "description": "(Required) Select the instance "
+    },
+    "AutomationAssumeRole": {
+      "type": "String",
+      "description": "(Optional) The ARN of the role that allows Automation to perform the actions on your behalf. ",
+      "default": ""
+    }
+  },
+  "mainSteps": [
+    {
+      "name": "CreateImage",
+      "action": "aws:createImage",
+      "onFailure": "Abort",
+      "inputs": {
+        "InstanceId": "{{ InstanceId }}",
+        "ImageName": "{{ InstanceId }}_{{automation:EXECUTION_ID}}",
+        "Encrypted": true
+      }
+    }
+  ],
+  "outputs": [
+    "createImage.ImageId"
+  ]
+},
+
+    {
+      "name": "CopyImage",
+      "action": "aws:copyImage",
+      "onFailure": "Abort",
+      "inputs": {
+        "SourceImageId": "{{ createImage.ImageId}}",
+        "ImageName": "{{ createImage.ImageId }}_{{automation:EXECUTION_ID}}",
+        "SourceRegion": "us-east-2",
+        "Encrypted": true
+      }
+    }
+  ],
+  "outputs": [
+    "createImage.ImageId"
+  ]
+}
+
